@@ -5,7 +5,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE FlexibleInstances #-}
 
 module Main (main) where
 
@@ -56,7 +55,6 @@ import Text.Blaze.Html.Renderer.Text
 import Clay ((?), (-:))
 import qualified Clay as C
 import qualified Clay.Flexbox
-import qualified Clay.Media
 import qualified Clay.Text
 import qualified Clay.Selector
 import Language.Javascript.JMacro
@@ -367,7 +365,7 @@ indexHtml hdrs = H.docTypeHtml $ do
         C.backgroundColor "#f1f1f1"
 
       "vaadin-grid" ? do
-	C.width (C.pct 100)
+        C.width (C.pct 100)
         C.maxWidth (C.em 80)
         C.height (C.pct 100)
         Clay.Flexbox.flexGrow 1
