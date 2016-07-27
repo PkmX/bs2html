@@ -1,0 +1,37 @@
+name:                bs2html
+version:             0.0.0.0
+synopsis:            Convert bs2.to backups to static html pages
+description:         Please see README.md
+homepage:            https://github.com/pkmx/bs2html
+license:             GPL-3
+author:              PkmX
+maintainer:          pkmx.tw@gmail.com
+copyright:           2016 PkmX
+category:            Web
+
+dependencies:
+  - base
+  - bytestring
+  - containers
+  - text
+  - lens
+  - attoparsec
+  - attoparsec-binary
+  - system-filepath
+  - iconv
+  - time
+  - blaze-html
+  - blaze-markup
+  - jmacro
+  - clay
+  - directory
+  - data-default-class
+  - terminal-progress-bar
+  - interpolate
+  - optparse-applicative
+
+executables:
+  bs2html:
+    source-dirs:      src
+    main:             Main.hs
+    ghc-options:      -Wall -threaded -rtsopts -with-rtsopts=-N

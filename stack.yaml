@@ -1,0 +1,6 @@
+resolver: lts-6.9
+
+packages:
+- '.'
+
+extra-deps: [ attoparsec-binary-0.2, clay-0.11 ]
