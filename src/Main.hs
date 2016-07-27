@@ -312,8 +312,8 @@ bbs2Html HDR{..} src = renderHtml $
             toSelector (FgColor bold color) ?
               C.color (toCssColor color bold)
 
-        ".quoter" ? C.color (toCssColor Cyan NotBold)
-        ".quote"  ? C.color (toCssColor Cyan Bold)
+        ".quoter" ? C.color (toCssColor Cyan Bold)
+        ".quote"  ? C.color (toCssColor Cyan NotBold)
 
         C.keyframes "blinker" [ (50, C.opacity 0) ]
         ".blinking" ? C.animation "blinker" (C.sec 2) (C.other "step-end") (C.sec 0) C.infinite (C.other "normal") (C.other "none")
