@@ -29,6 +29,7 @@ dependencies:
   - terminal-progress-bar
   - interpolate
   - optparse-applicative
+  - process-extras
 
 executables:
   bs2html:

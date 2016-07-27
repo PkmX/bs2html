@@ -20,7 +20,7 @@ Alternatively, you may download generic `x86-64` Linux binaries from GitHub's [r
 
 ```
 $ bs2html --help
-Usage: bs2html INPUT OUTPUT [--show-hidden] [--debug]
+Usage: bs2html INPUT OUTPUT [--show-hidden] [--bsdconv] [--debug]
   Convert bs2.to backups to a static website
 
 Available options:
@@ -28,6 +28,7 @@ Available options:
   INPUT                    Directory to bs2.to backup
   OUTPUT                   Output directory (created if non-existent)
   --show-hidden            Include hidden posts
+  --bsdconv                Use bsdconv in $PATH to convert from BIG5 to UTF-8
   --debug                  Print debug information
 ```
 
@@ -67,9 +68,15 @@ Alternatively, you may host the generated static files with any HTTP servers of 
 
 ## Notes
 
+### Hidden posts
+
 The utility by default does not convert restricted articles (隱文) in order to protect your privacy. Specify `--show-hidden` to force generation of restricted posts.
 
-Performance-wise, currently it can convert a moderately-sized board with 2273 articles (~11MB text) in about 3 seconds.
+### BIG5 Decoding
+
+Currently, two Big5 decoders are supported: iconv (default) and bsdconv. iconv's is part of the POSIX standard (thus widely available) but it outputs sub-optimal UTF-8 due to lack of UAO support and ambigious width handling in CJK characters. To convert ANSI arts used in BBS, considering using the [bsdconv](https://github.com/buganini/bsdconv) library by @buganini which offers additional functionality to handle aforementioned cases.
+
+To enable the bsdconv decoder, ensure that `bsdconv` can be found in `$PATH` and pass the `--bsdconv` flag to `bs2html`.
 
 ## TODO
 
@@ -77,4 +84,5 @@ Performance-wise, currently it can convert a moderately-sized board with 2273 ar
 * Thread-level navigation within article (`[` and `]`).
 * Generate a fully local website without depending on CDN (Vaadin's CDN is slow).
 * Factor out common article `<style>`'s to a separate CSS stylesheet.
-* Optimize generated CSS/JS.
+* Minimize generated CSS/JS.
+* Write a Haskell-binding for bsdconv instead calling the program directly.

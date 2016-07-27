@@ -59,6 +59,10 @@ import qualified Clay.Text
 import qualified Clay.Selector
 import Language.Javascript.JMacro
 
+-- For calling bsdconv in pure context
+import System.Process.ByteString
+import System.IO.Unsafe (unsafePerformIO) -- OH SHIT!
+
 data HDR = HDR { hdrTimestamp :: UTCTime
                , hdrXmode :: Word32
                , hdrXname :: Text
@@ -94,8 +98,8 @@ instance ToJExpr HDR where
 --   char   date[9];
 --   char   title[73];
 -- } HDR;
-hdrParser :: Parsec.BS.Parser HDR
-hdrParser = do
+hdrParser :: Big5Decoder -> Parsec.BS.Parser HDR
+hdrParser big5Decoder = do
     hdrTimestamp <- posixSecondsToUTCTime . realToFrac . (fromIntegral :: Word32 -> Int32) <$> anyWord32le
     hdrXmode <- anyWord32le
     void $ Parsec.BS.take 4
@@ -110,8 +114,16 @@ hdrParser = do
     big5CharArray n = stripEndNuls . big5Decoder <$> Parsec.BS.take n
     stripEndNuls = T.dropWhileEnd (== '\NUL')
 
-big5Decoder :: ByteString -> Text
-big5Decoder = T.decodeUtf8 . BL.toStrict . convertFuzzy Transliterate "BIG5" "UTF-8" . BL.fromStrict
+type Big5Decoder = ByteString -> Text
+
+big5DecoderBsdConv :: Big5Decoder
+big5DecoderBsdConv bs = unsafePerformIO $ do
+    (_, out, _) <- readProcessWithExitCode "bsdconv" [arg] bs
+    pure (T.decodeUtf8 out)
+  where arg = "ansi-control,byte:big5-defrag:byte,pass#mark&for=1b|pass#unmark,big5:ambiguous-pad:utf-8,pass#for=1b"
+
+big5DecoderIconv :: Big5Decoder
+big5DecoderIconv = T.decodeUtf8 . BL.toStrict . convertFuzzy Transliterate "BIG5" "UTF-8" . BL.fromStrict
 
 data Color8 = Black | Red | Green | Yellow | Blue | Magenta | Cyan | White deriving (Eq, Enum, Show)
 newtype BgColor = BgColor Color8 deriving (Eq, Enum, Show)
@@ -420,6 +432,7 @@ indexHtml hdrs = H.docTypeHtml $ do
 data Args = Args { inputDir :: FilePath
                  , outputDir :: FilePath
                  , showHidden :: Bool
+                 , useBsdConv :: Bool
                  , debug :: Bool
                  } deriving Show
 
@@ -427,14 +440,16 @@ argsParser :: Optparse.Parser Args
 argsParser = Args <$> (Path.decodeString <$> argument str (metavar "INPUT" <> help "Directory to bs2.to backup"))
                   <*> (Path.decodeString <$> argument str (metavar "OUTPUT" <> help "Output directory (created if non-existent)"))
                   <*> switch (long "show-hidden" <> help "Include hidden posts")
+                  <*> switch (long "bsdconv" <> help "Use bsdconv in $PATH to convert from BIG5 to UTF-8")
                   <*> switch (long "debug" <> help "Print debug information")
 
 main :: IO ()
 main = do
   Args{..} <- Optparse.execParser $ info (helper <*> argsParser) (fullDesc <> progDesc "Convert bs2.to backups to a static website")
+  let big5Decoder = if useBsdConv then big5DecoderBsdConv else big5DecoderIconv
   dir <- BS.readFile $ Path.encodeString (inputDir </> ".DIR")
   ePutStr "Parsing .DIR ..."
-  case Parsec.BS.parseOnly (many hdrParser) dir of
+  case Parsec.BS.parseOnly (many (hdrParser big5Decoder)) dir of
     Left e -> ePutStrLn $ " Parse error: " <> e
     Right allHdrs -> do
       let hdrs = if showHidden then allHdrs else filter (not . hdrIsRestrict) allHdrs
