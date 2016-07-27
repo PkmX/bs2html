@@ -1,6 +1,6 @@
 # bs2html
 
-Convert [telnet://bs2.to](telnet://bs2.to) backups to a static website.
+Convert telnet://bs2.to backups to a static website.
 
 [Demo](https://pkmx.github.io/bs2html/) (converted from `testbrd`)
 
@@ -14,7 +14,7 @@ $ stack install
 
 This will download and compile all dependencies as well as the program, which may take a while. The resulting binary will be installed to `~/.local/bin/bs2html`.
 
-Alternatively, you may download generic `x86-64` Linux binaries from GitHub's releases page.
+Alternatively, you may download generic `x86-64` Linux binaries from GitHub's [releases page](https://github.com/pkmx/bs2html/releases).
 
 ## Usage
 
@@ -33,7 +33,7 @@ Available options:
 
 ### Example
 
-Download a `.tar.gz` backup from [http://www.bs2.to](http://www.bs2.to) and extract it to the current directory (for testing purporses, you may use `testbrd` in the repository):
+Download a `.tar.gz` backup from [https://www.bs2.to](http://www.bs2.to) and extract it to the current directory (Note that you may also use `testbrd` in the repository as an example):
 
 ```
 $ tar xf P_foo.tar.gz
