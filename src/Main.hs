@@ -351,6 +351,7 @@ indexHtml :: [HDR] -> Html
 indexHtml hdrs = H.docTypeHtml $ do
   H.head $ do
     H.meta ! A.charset "utf-8"
+    H.meta ! A.name "viewport" ! A.content "width=device-width, initial-scale=1"
     H.title ""
     H.script ! A.src "https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.22/webcomponents-lite.min.js" $ mempty
     H.script $ H.toHtml $ showText $ renderJs [jmacro| window.Polymer = { dom: 'shadow' } |]
@@ -365,12 +366,9 @@ indexHtml hdrs = H.docTypeHtml $ do
         Clay.Flexbox.flexDirection Clay.Flexbox.column
         C.backgroundColor "#f1f1f1"
 
-      C.query Clay.Media.screen [Clay.Media.minWidth (C.px 980)] $
-        "vaadin-grid" ?
-          C.width (C.em 80)
-
       "vaadin-grid" ? do
-        C.width (C.pct 100)
+	C.width (C.pct 100)
+        C.maxWidth (C.em 80)
         C.height (C.pct 100)
         Clay.Flexbox.flexGrow 1
         Clay.Flexbox.alignSelf C.center
