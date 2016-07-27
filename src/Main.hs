@@ -207,23 +207,25 @@ pushParser = do
 setClasses :: Attributable h => h -> [CssClass] -> h
 p `setClasses` clses = p !? (not (Prelude.null clses), A.class_ $ fromString $ unwords $ map unCssClass clses)
 
-textStateStyle :: Attributable h => h -> TextState -> h
-textStateStyle p TextState{..} =
+textStateClasses :: TextState -> [CssClass]
+textStateClasses TextState{..} =
     case quoteLine of
-      Nothing ->
-        let clses = [ toCssClass bgColor | bgColor /= BgColor Black ] ++
-                    [ toCssClass fgColor | fgColor /= FgColor NotBold White ] ++
-                    [ CssClass (showLower blinking) | blinking == Blinking ]
-        in p `setClasses` clses
-      Just q -> p ! A.class_ (fromString (showLower q))
+      Nothing -> [ toCssClass bgColor | bgColor /= BgColor Black ] ++
+                 [ toCssClass fgColor | fgColor /= FgColor NotBold White ] ++
+                 [ CssClass (showLower blinking) | blinking == Blinking ]
+      Just q -> [ CssClass (showLower q) ]
 
 bbsParser :: Parsec.Text.Parser Html
 bbsParser = do
     metaline <- fromMaybe "" <$> optional metalineParser
     (metaline <>) <$> go def True
   where go ts showBr = do
-          html <- do s <- Parsec.Text.takeWhile (`notElem` ['\ESC', '\n'])
-                     pure (H.span `textStateStyle` ts $ H.toHtml s)
+          html <- do (H.toHtml -> inner) <- Parsec.Text.takeWhile (`notElem` ['\ESC', '\n'])
+                     let clses = textStateClasses ts
+                     if Prelude.null clses then
+                       pure inner
+                     else
+                       pure $ H.span ! A.class_ (fromString $ unwords $ map unCssClass clses) $ inner
           choice [ do ts' <- ($ ts) <$> escParser
                       (html <>) <$> go ts' True
                  , do _ <- char '\n'
