@@ -288,16 +288,15 @@ bbs2Html HDR{..} src = renderHtml $
           C.height (C.pct 100)
           C.backgroundColor "#000000"
           C.color "#EEEEEC"
-          C.display C.flex
-          Clay.Flexbox.justifyContent C.center
 
         ".container" ? do
-          C.margin (C.em 1) C.nil (C.em 1) C.nil
+          C.margin (C.em 1) C.auto (C.em 1) C.auto
           C.fontFamily ["細明體", "Inconsolata"] [C.monospace]
-          C.whiteSpace Clay.Text.preWrap
+          C.whiteSpace Clay.Text.pre
           C.fontSize (C.vw 1.8)
           C.lineHeight (C.pct 110)
-          C.width (C.em 40)
+          C.minWidth (C.em 40)
+          C.maxWidth (C.other "max-content")
 
         let toCssColor :: Color8 -> Bold -> C.Color
             toCssColor Black   NotBold = "#000000"
