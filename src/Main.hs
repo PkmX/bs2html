@@ -297,6 +297,8 @@ bbs2Html HDR{..} src = renderHtml $
           C.lineHeight (C.pct 110)
           C.minWidth (C.em 40)
           C.maxWidth (C.other "max-content")
+          C.maxWidth (C.other "-moz-max-content")
+          C.maxWidth (C.other "-webkit-max-content")
 
         let toCssColor :: Color8 -> Bold -> C.Color
             toCssColor Black   NotBold = "#000000"
